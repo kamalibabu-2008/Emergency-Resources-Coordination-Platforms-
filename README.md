@@ -1,4 +1,10 @@
-# ResQLink — Full Hackathon Prototype
+Team Name : Nexora
+
+Team Members : KAMALI B, INDHUJA N, ANGELIN SHERLY S
+
+WEB-02: Emergency Resource Coordination Platform Problem Statement: Develop a web application that helps coordinate emergency resources during situations such as floods, accidents, or other local emergencies. Users should be able to report incidents and request resources such as food, medical assistance, transportation, or volunteers.
+Expected Features:  Incident reporting  Resource requests  Location information  Volunteer registration  Admin dashboard  Request status tracking 
+Challenge Level: High 
 
 ## One-tap run
 

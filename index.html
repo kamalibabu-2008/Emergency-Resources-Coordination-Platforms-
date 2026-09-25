@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ResQLink — Emergency Resource Coordination</title>
+<style>
+:root{
+  --bg:#07111f;--panel:#0d1b2e;--panel2:#12243b;--line:#203650;
+  --text:#edf6ff;--muted:#9db0c6;--cyan:#35d6ff;--green:#43e0a1;
+  --orange:#ffb45b;--red:#ff6378;--purple:#9b8cff;--shadow:0 18px 50px #0006;
+}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:
+radial-gradient(circle at 15% 10%,#113458 0,transparent 30%),radial-gradient(circle at 90% 0,#173b49 0,transparent 25%),var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit} button{cursor:pointer}
+.app{display:flex;min-height:100vh}.side{width:245px;background:#081525dd;border-right:1px solid var(--line);padding:22px 16px;position:fixed;inset:0 auto 0 0;z-index:5}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;margin:4px 8px 28px}.logo i{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--green));color:#06121c;font-style:normal}
+.logo span{color:var(--cyan)} .nav button{display:flex;width:100%;border:0;background:transparent;color:var(--muted);padding:13px 12px;border-radius:11px;margin:4px 0;text-align:left;gap:12px;align-items:center}
+.nav button.active,.nav button:hover{background:#10263d;color:white}.nav b{font-size:17px;width:22px;text-align:center}.live{margin-top:22px;padding:14px;border:1px solid #22445a;background:#0b1c2c;border-radius:14px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green);margin-right:7px}.live small{color:var(--muted)}
+.main{margin-left:245px;width:calc(100% - 245px);padding:26px 30px 50px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.crumb{color:var(--muted);font-size:13px}.top h1{margin:5px 0 0;font-size:28px}.top-right{display:flex;gap:10px;align-items:center}.pill{padding:9px 12px;border:1px solid var(--line);border-radius:12px;color:var(--muted);background:#0b192a}.alert{border:1px solid #784b57;background:#301923;color:#ffd8dd}
+.page{display:none}.page.active{display:block}.hero{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}.card{background:linear-gradient(145deg,#0d1c2f,#0a1728);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadow)}
+.hero-card{min-height:245px;padding:28px;background:linear-gradient(135deg,#102d45,#0b1b2e 55%,#102b32)}.eyebrow{color:var(--cyan);font-weight:700;letter-spacing:.08em;font-size:12px}.hero h2{font-size:34px;line-height:1.08;margin:12px 0}.hero p{color:var(--muted);max-width:680px;line-height:1.6}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.btn{border:1px solid var(--line);background:#12253a;color:white;padding:11px 15px;border-radius:11px}.btn.primary{background:linear-gradient(135deg,#1abfe5,#25d39c);color:#06131d;border:0;font-weight:800}.btn.danger{background:#4a202a;border-color:#783642}.btn:hover{filter:brightness(1.12)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}.stat .num{font-size:30px;font-weight:800;margin:7px 0}.stat .label{color:var(--muted);font-size:13px}.stat .trend{font-size:12px;color:var(--green)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.section-title{display:flex;justify-content:space-between;align-items:center;margin:24px 0 12px}.section-title h3{margin:0;font-size:17px}.muted{color:var(--muted)}
+.incident{display:flex;gap:13px;padding:14px 0;border-bottom:1px solid #1b2d42}.incident:last-child{border:0}.icon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:#142b43;font-size:19px}.incident strong{display:block}.incident small{color:var(--muted);display:block;margin-top:4px}.tag{display:inline-block;font-size:11px;padding:5px 8px;border-radius:8px;background:#18364b;color:#80e7ff;margin-top:7px}.tag.red{background:#41212b;color:#ff9aa8}.tag.green{background:#16392f;color:#76e8b9}.tag.orange{background:#44321e;color:#ffc77c}
+.bar{height:9px;background:#172a3e;border-radius:20px;overflow:hidden;margin:12px 0}.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:20px}
+.table{width:100%;border-collapse:collapse}.table th,.table td{padding:12px 9px;text-align:left;border-bottom:1px solid #1b2d42;font-size:13px}.table th{color:var(--muted);font-weight:600}.status{padding:5px 8px;border-radius:8px;font-size:11px}.pending{background:#44351f;color:#ffc978}.assigned{background:#16374a;color:#74dcff}.done{background:#16392f;color:#76e8b9}
+.map{height:260px;border-radius:14px;background:linear-gradient(140deg,#0e2b39,#10283b);position:relative;overflow:hidden;border:1px solid #1e4052}
+.map:before{content:"";position:absolute;inset:0;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:34px 34px;transform:skewY(-8deg) scale(1.15)}
+.road{position:absolute;height:4px;background:#526a79;transform:rotate(-22deg);width:120%;left:-10%;top:54%}.road.r2{transform:rotate(31deg);top:32%;background:#38566a}.marker{position:absolute;width:15px;height:15px;border-radius:50%;background:var(--red);box-shadow:0 0 0 7px #ff637833,0 0 20px var(--red)}.m1{left:29%;top:42%}.m2{left:65%;top:58%;background:var(--orange);box-shadow:0 0 0 7px #ffb45b33,0 0 20px var(--orange)}.m3{left:78%;top:27%;background:var(--green);box-shadow:0 0 0 7px #43e0a133,0 0 20px var(--green)}.map-label{position:absolute;bottom:12px;left:12px;background:#071525dd;padding:8px 10px;border-radius:9px;font-size:11px;color:#b8cbe0}
+.form{display:grid;gap:13px}.form.two{grid-template-columns:1fr 1fr}.field{display:grid;gap:6px}.field label{font-size:12px;color:var(--muted)}input,select,textarea{width:100%;background:#091727;border:1px solid #28415b;color:white;border-radius:10px;padding:11px 12px;outline:none}textarea{min-height:100px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:var(--cyan)}
+.modal{position:fixed;inset:0;background:#0009;display:none;place-items:center;z-index:20;padding:20px}.modal.show{display:grid}.modal-box{width:min(620px,100%);max-height:90vh;overflow:auto;background:#0c1b2d;border:1px solid #2a4560;border-radius:20px;padding:22px;box-shadow:0 30px 90px #000b}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.close{border:0;background:#17283c;color:white;border-radius:9px;padding:7px 10px}
+.toast{position:fixed;right:24px;bottom:24px;background:#10283c;border:1px solid #2c5268;padding:13px 16px;border-radius:12px;display:none;z-index:30}.toast.show{display:block}
+.footer-note{font-size:12px;color:#6f8499;margin-top:20px}
+@media(max-width:900px){.side{width:72px}.logo span,.nav em,.live{display:none}.logo{margin-left:8px}.main{margin-left:72px;width:calc(100% - 72px);padding:18px}.hero,.grid2{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.top-right .pill{display:none}.stats,.grid3,.form.two{grid-template-columns:1fr}.main{padding:14px}.hero h2{font-size:28px}.side{width:62px}.main{margin-left:62px;width:calc(100% - 62px)}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+  <div class="logo"><i>✚</i><div>ResQ<span>Link</span></div></div>
+  <div class="nav">
+    <button class="active" onclick="showPage('dashboard',this)"><b>⌂</b><em>Command Center</em></button>
+    <button onclick="showPage('incidents',this)"><b>⚠</b><em>Incidents</em></button>
+    <button onclick="showPage('requests',this)"><b>▣</b><em>Resource Requests</em></button>
+    <button onclick="showPage('volunteers',this)"><b>♙</b><em>Volunteers</em></button>
+    <button onclick="showPage('admin',this)"><b>⚙</b><em>Admin Dashboard</em></button>
+  </div>
+  <div class="live"><span class="dot"></span><strong>Network Live</strong><br><small>All coordination nodes online</small></div>
+</aside>
+
+<main class="main">
+<div class="top">
+ <div><div class="crumb">RESQ / <span id="crumb">COMMAND CENTER</span></div><h1 id="pageTitle">Emergency Command Center</h1></div>
+ <div class="top-right"><div class="pill">● Live updates</div><button class="btn danger" onclick="openModal('sosModal')">🚨 SOS</button></div>
+</div>
+
+<section id="dashboard" class="page active">
+ <div class="hero">
+  <div class="card hero-card">
+   <div class="eyebrow">COORDINATE • RESPOND • RECOVER</div>
+   <h2>One place to connect<br>every emergency resource.</h2>
+   <p>Report incidents, request help, mobilize volunteers and track response — with location-aware coordination for faster local action.</p>
+   <div class="actions"><button class="btn primary" onclick="openModal('incidentModal')">＋ Report Incident</button><button class="btn" onclick="openModal('requestModal')">Request Resources</button></div>
+  </div>
+  <div class="card">
+   <div class="section-title"><h3>Live Response Map</h3><span class="tag green">LIVE</span></div>
+   <div class="map"><div class="road"></div><div class="road r2"></div><div class="marker m1"></div><div class="marker m2"></div><div class="marker m3"></div><div class="map-label">3 active zones • Tap markers in full system</div></div>
+  </div>
+ </div>
+ <div class="stats">
+  <div class="card stat"><div class="label">ACTIVE INCIDENTS</div><div class="num" id="incidentCount">12</div><div class="trend">↑ 3 today</div></div>
+  <div class="card stat"><div class="label">OPEN REQUESTS</div><div class="num" id="requestCount">27</div><div class="trend">8 high priority</div></div>
+  <div class="card stat"><div class="label">AVAILABLE VOLUNTEERS</div><div class="num" id="volCount">184</div><div class="trend">↑ 16 online</div></div>
+  <div class="card stat"><div class="label">RESOURCES DEPLOYED</div><div class="num">68%</div><div class="trend">of current capacity</div></div>
+ </div>
+ <div class="grid2">
+  <div class="card"><div class="section-title"><h3>Priority Incidents</h3><span class="muted">Today</span></div>
+   <div id="incidentList">
+    <div class="incident"><div class="icon">🌊</div><div><strong>Flash Flood — River Road</strong><small>Perundurai • 14 min ago</small><span class="tag red">CRITICAL</span></div></div>
+    <div class="incident"><div class="icon">🚗</div><div><strong>Road Accident — NH 544</strong><small>Chithode • 28 min ago</small><span class="tag orange">HIGH</span></div></div>
+    <div class="incident"><div class="icon">🏠</div><div><strong>Waterlogging — Ward 12</strong><small>Erode • 41 min ago</small><span class="tag">MEDIUM</span></div></div>
+   </div>
+  </div>
+  <div class="card"><div class="section-title"><h3>Resource Readiness</h3><span class="muted">Updated now</span></div>
+   <p class="muted">Medical teams <b style="float:right;color:white">82%</b></p><div class="bar"><span style="width:82%"></span></div>
+   <p class="muted">Transport <b style="float:right;color:white">64%</b></p><div class="bar"><span style="width:64%"></span></div>
+   <p class="muted">Food & water <b style="float:right;color:white">91%</b></p><div class="bar"><span style="width:91%"></span></div>
+   <p class="muted">Volunteers <b style="float:right;color:white">76%</b></p><div class="bar"><span style="width:76%"></span></div>
+  </div>
+ </div>
+ <div class="footer-note">Demo mode • Data is stored in this browser session. Designed as a hackathon-ready prototype.</div>
+</section>
+
+<section id="incidents" class="page">
+ <div class="card"><div class="section-title"><h3>Incident Management</h3><button class="btn primary" onclick="openModal('incidentModal')">＋ New Incident</button></div>
+ <table class="table"><thead><tr><th>ID</th><th>Incident</th><th>Location</th><th>Priority</th><th>Status</th></tr></thead>
+ <tbody id="incidentTable">
+ <tr><td>#INC-1042</td><td>Flash Flood</td><td>River Road</td><td><span class="status pending">CRITICAL</span></td><td><span class="status assigned">Responding</span></td></tr>
+ <tr><td>#INC-1041</td><td>Road Accident</td><td>NH 544</td><td><span class="status pending">HIGH</span></td><td><span class="status assigned">Team Assigned</span></td></tr>
+ <tr><td>#INC-1040</td><td>Waterlogging</td><td>Ward 12</td><td><span class="status assigned">MEDIUM</span></td><td><span class="status done">Contained</span></td></tr>
+ </tbody></table></div>
+</section>
+
+<section id="requests" class="page">
+ <div class="card"><div class="section-title"><h3>Resource Requests</h3><button class="btn primary" onclick="openModal('requestModal')">＋ Request Resource</button></div>
+ <table class="table"><thead><tr><th>Request</th><th>Type</th><th>Location</th><th>Priority</th><th>Status</th></tr></thead>
+ <tbody id="requestTable">
+ <tr><td>#REQ-778</td><td>Medical Team</td><td>River Road</td><td><span class="status pending">URGENT</span></td><td><span class="status assigned">Assigned</span></td></tr>
+ <tr><td>#REQ-777</td><td>Drinking Water</td><td>Ward 12</td><td><span class="status pending">HIGH</span></td><td><span class="status pending">Pending</span></td></tr>
+ <tr><td>#REQ-776</td><td>Transport</td><td>Chithode</td><td><span class="status assigned">NORMAL</span></td><td><span class="status done">Delivered</span></td></tr>
+ </tbody></table></div>
+</section>
+
+<section id="volunteers" class="page">
+ <div class="grid2">
+  <div class="card"><div class="section-title"><h3>Volunteer Network</h3><span class="tag green">184 ACTIVE</span></div>
+   <p class="muted">Match volunteers to nearby needs based on skill and availability.</p>
+   <div class="grid3">
+    <div class="card"><strong>42</strong><br><small class="muted">Medical</small></div><div class="card"><strong>58</strong><br><small class="muted">Transport</small></div><div class="card"><strong>84</strong><br><small class="muted">General</small></div>
+   </div>
+   <button class="btn primary" style="margin-top:16px" onclick="openModal('volModal')">＋ Register as Volunteer</button>
+  </div>
+  <div class="card"><div class="section-title"><h3>Nearby Available Team</h3><span class="tag">2.4 km</span></div>
+   <div class="incident"><div class="icon">🩺</div><div><strong>Rapid Medical Team A</strong><small>4 members • First Aid • Ambulance</small><span class="tag green">AVAILABLE</span></div></div>
+   <div class="incident"><div class="icon">🚐</div><div><strong>Community Transport B</strong><small>2 drivers • Van • 8 seats</small><span class="tag green">AVAILABLE</span></div></div>
+  </div>
+ </div>
+</section>
+
+<section id="admin" class="page">
+ <div class="stats">
+  <div class="card stat"><div class="label">TOTAL CASES TODAY</div><div class="num">39</div><div class="trend">+12%</div></div>
+  <div class="card stat"><div class="label">AVG RESPONSE</div><div class="num">11m</div><div class="trend">-3m improvement</div></div>
+  <div class="card stat"><div class="label">RESOLVED</div><div class="num">86%</div><div class="trend">34 of 39</div></div>
+  <div class="card stat"><div class="label">UNASSIGNED</div><div class="num">5</div><div class="trend" style="color:var(--orange)">Needs attention</div></div>
+ </div>
+ <div class="grid2">
+  <div class="card"><div class="section-title"><h3>Response Overview</h3><span class="muted">Last 6 hours</span></div>
+   <div class="map" style="height:220px;padding:18px;display:flex;align-items:end;gap:8px">
+    <div style="height:35%;width:12%;background:#35d6ff99;border-radius:8px 8px 0 0"></div><div style="height:48%;width:12%;background:#35d6ff99;border-radius:8px 8px 0 0"></div><div style="height:61%;width:12%;background:#43e0a199;border-radius:8px 8px 0 0"></div><div style="height:50%;width:12%;background:#35d6ff99;border-radius:8px 8px 0 0"></div><div style="height:78%;width:12%;background:#43e0a199;border-radius:8px 8px 0 0"></div><div style="height:88%;width:12%;background:#43e0a199;border-radius:8px 8px 0 0"></div>
+   </div>
+  </div>
+  <div class="card"><div class="section-title"><h3>Admin Actions</h3></div>
+   <button class="btn" style="width:100%;margin-bottom:10px" onclick="toast('All responders notified successfully')">📢 Broadcast Emergency Alert</button>
+   <button class="btn" style="width:100%;margin-bottom:10px" onclick="toast('Auto-matching 5 unassigned requests...')">⚡ Auto-Match Resources</button>
+   <button class="btn" style="width:100%" onclick="toast('System audit log exported')">⇩ Export Activity Log</button>
+  </div>
+ </div>
+</section>
+</main>
+</div>
+
+<div class="modal" id="incidentModal"><div class="modal-box">
+ <div class="modal-head"><div><h2 style="margin:0">Report an Incident</h2><small class="muted">Send verified details to the response network.</small></div><button class="close" onclick="closeModal('incidentModal')">✕</button></div>
+ <form class="form" onsubmit="addIncident(event)"><div class="form two">
+ <div class="field"><label>Incident type</label><select id="itype"><option>Flood</option><option>Road Accident</option><option>Fire</option><option>Medical Emergency</option><option>Building Damage</option><option>Other</option></select></div>
+ <div class="field"><label>Priority</label><select id="ipriority"><option>Critical</option><option>High</option><option>Medium</option><option>Low</option></select></div></div>
+ <div class="field"><label>Location</label><input id="ilocation" placeholder="Area / landmark" required></div>
+ <div class="field"><label>Description</label><textarea id="idesc" placeholder="What happened? How many people need help?"></textarea></div>
+ <button class="btn primary" type="submit">Submit Incident Report</button></form>
+</div></div>
+
+<div class="modal" id="requestModal"><div class="modal-box">
+ <div class="modal-head"><div><h2 style="margin:0">Request Resources</h2><small class="muted">Tell responders what is needed.</small></div><button class="close" onclick="closeModal('requestModal')">✕</button></div>
+ <form class="form" onsubmit="addRequest(event)"><div class="form two">
+ <div class="field"><label>Resource</label><select id="rtype"><option>Medical Assistance</option><option>Food</option><option>Drinking Water</option><option>Transportation</option><option>Rescue Team</option><option>Volunteers</option></select></div>
+ <div class="field"><label>Urgency</label><select id="rpriority"><option>Urgent</option><option>High</option><option>Normal</option></select></div></div>
+ <div class="field"><label>Location</label><input id="rlocation" placeholder="Area / landmark" required></div>
+ <div class="field"><label>People affected</label><input id="rpeople" type="number" min="1" placeholder="e.g. 12" required></div>
+ <button class="btn primary" type="submit">Create Resource Request</button></form>
+</div></div>
+
+<div class="modal" id="volModal"><div class="modal-box">
+ <div class="modal-head"><div><h2 style="margin:0">Join Volunteer Network</h2><small class="muted">Help responders reach people faster.</small></div><button class="close" onclick="closeModal('volModal')">✕</button></div>
+ <form class="form" onsubmit="registerVolunteer(event)"><div class="form two"><div class="field"><label>Name</label><input id="vname" required></div><div class="field"><label>Phone</label><input id="vphone" required></div></div>
+ <div class="form two"><div class="field"><label>Skill</label><select id="vskill"><option>General Support</option><option>Medical / First Aid</option><option>Driving / Transport</option><option>Food Distribution</option><option>Search & Rescue</option></select></div><div class="field"><label>Availability</label><select><option>Available now</option><option>Today</option><option>Weekend</option></select></div></div>
+ <button class="btn primary" type="submit">Register Volunteer</button></form>
+</div></div>
+
+<div class="modal" id="sosModal"><div class="modal-box">
+ <div class="modal-head"><div><h2 style="margin:0;color:#ff8798">🚨 Emergency SOS</h2><small class="muted">Use only when immediate assistance is required.</small></div><button class="close" onclick="closeModal('sosModal')">✕</button></div>
+ <div class="card" style="background:#281722;border-color:#6a3542"><strong>One-tap emergency request</strong><p class="muted">Your current location and emergency type will be shared with the coordination center.</p><button class="btn danger" style="width:100%;padding:15px" onclick="sendSOS()">SEND SOS NOW</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const pages={dashboard:['Emergency Command Center','COMMAND CENTER'],incidents:['Incident Management','INCIDENTS'],requests:['Resource Requests','RESOURCE REQUESTS'],volunteers:['Volunteer Network','VOLUNTEERS'],admin:['Admin Dashboard','ADMIN']};
+function showPage(id,btn){
+ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
+ btn.classList.add('active');
+ document.getElementById('pageTitle').textContent=pages[id][0];
+ document.getElementById('crumb').textContent=pages[id][1];
+}
+function openModal(id){document.getElementById(id).classList.add('show')}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+function toast(msg){const t=document.getElementById('toast');t.textContent='✓ '+msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
+function addIncident(e){
+ e.preventDefault();const type=itype.value,loc=ilocation.value,pri=ipriority.value;
+ const id='#INC-'+(1043+document.querySelectorAll('#incidentTable tr').length);
+ incidentTable.insertAdjacentHTML('afterbegin',`<tr><td>${id}</td><td>${type}</td><td>${loc}</td><td><span class="status pending">${pri.toUpperCase()}</span></td><td><span class="status pending">New</span></td></tr>`);
+ incidentList.insertAdjacentHTML('afterbegin',`<div class="incident"><div class="icon">⚠</div><div><strong>${type} — ${loc}</strong><small>Just now • Citizen report</small><span class="tag red">${pri.toUpperCase()}</span></div></div>`);
+ document.getElementById('incidentCount').textContent=13;closeModal('incidentModal');e.target.reset();toast('Incident reported to command center');
+}
+function addRequest(e){
+ e.preventDefault();const type=rtype.value,loc=rlocation.value,pri=rpriority.value;
+ const id='#REQ-'+(779+document.querySelectorAll('#requestTable tr').length);
+ requestTable.insertAdjacentHTML('afterbegin',`<tr><td>${id}</td><td>${type}</td><td>${loc}</td><td><span class="status pending">${pri.toUpperCase()}</span></td><td><span class="status pending">Pending</span></td></tr>`);
+ document.getElementById('requestCount').textContent=28;closeModal('requestModal');e.target.reset();toast('Resource request created successfully');
+}
+function registerVolunteer(e){e.preventDefault();document.getElementById('volCount').textContent=185;closeModal('volModal');e.target.reset();toast('Welcome to the ResQLink volunteer network!')}
+function sendSOS(){closeModal('sosModal');toast('SOS sent — response team has been alerted');}
+window.onclick=e=>{if(e.target.classList.contains('modal'))e.target.classList.remove('show')}
+</script>
+</body>
+</html>
